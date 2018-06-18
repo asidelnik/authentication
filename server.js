@@ -16,18 +16,15 @@ app.use(bodyParser.urlencoded({ extended: false }));
 app.use(passport.initialize());
 
 // Point static path to dist
-app.use(express.static(path.join(__dirname, 'dist')));
+app.use(express.static(path.join(__dirname, 'dist/Authentication-Passport')));
 
-// Catch all other routes and return the index file
-app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, 'dist/index.html'));
+/*
+app.all('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dist/Angusales/index.html'));      //'dist/index.html'
 });
+*/
 
-const port = process.env.PORT || '3000';
-app.set('port', port);
-
-const server = http.createServer(app);
-server.listen(port, () => console.log(`API running on localhost:${port}`));
+//4200
 
 passport.use(new LocalStrategy(function (username, password, done) {
     if ((username === "john") && (password === "password")) {
@@ -37,12 +34,25 @@ passport.use(new LocalStrategy(function (username, password, done) {
     }
 }));
 
-
 app.get('/login', (req, res) => {
-    res.sendFile(path.join(__dirname, 'src/Login.html'));
+    res.sendFile(path.join(__dirname, 'public/login.html'));
 });
 
-app.post('/login', function () {
+app.post('/login', passport.authenticate('local', {
+    successRedirect: '/',
+    failureRedirect: '/login?err',
+    session: false
+}));
+
+
+// Catch all other routes and return the index file
+//app.get
+app.get('*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'dist/Authentication-Passport/index.html'));
 });
 
+const port = process.env.PORT || '4200';
+app.set('port', port);
 
+const server = http.createServer(app);
+server.listen(port, () => console.log(`API running on localhost:${port}`));
